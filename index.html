@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ club.name }} — {{ club.slogan }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+
+    <!-- ================= NAVIGATION ================= -->
+    <nav class="nav">
+      <div class="logo">✨ {{ club.name }}</div>
+      <div>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('membership_info') }}">Membership</a>
+        {% if session.get('user_id') %}
+          {% if session.get('role') == 'admin' %}
+            <a href="{{ url_for('admin_panel') }}">Admin</a>
+          {% else %}
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+          {% endif %}
+          <a href="{{ url_for('logout') }}">Logout</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <!-- ================= FLASH MESSAGES ================= -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}{% for msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+
+    <!-- ================= PAGE: HOME ================= -->
+    {% if page == "home" %}
+    <section class="hero glass">
+      <h1>{{ club.slogan }}</h1>
+      <div class="slogan">One Club. One Vision. One Family.</div>
+      <p>Welcome to <strong>{{ club.name }}</strong> — a community built on unity, mutual respect, friendship, commitment, and collective progress.</p>
+      <p>We believe that when people come together with a shared vision, great things become possible. Our club is committed to creating meaningful relationships, encouraging personal growth, promoting financial discipline, and building a stronger future for every member.</p>
+      <p>Through our regular meetings, contributions, shared responsibilities, and collective initiatives, we aim to create an environment where every member feels valued, respected, and empowered.</p>
+      <p style="color:var(--gold); font-weight:600; margin-top:1rem;">Welcome to the {{ club.name }} family. <span style="color:var(--pink);">Unique!</span></p>
+      <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+        <a href="{{ url_for('membership_info') }}" class="btn btn-gold">Become a Member</a>
+        <a href="#login-section" class="btn btn-primary">Member Login</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="info-card"><div class="label">Club Name</div><div class="value">{{ club.name }}</div></div>
+      <div class="info-card"><div class="label">Slogan</div><div class="value">{{ club.slogan }}</div></div>
+      <div class="info-card"><div class="label">Meeting Location</div><div class="value">{{ club.location }}</div></div>
+      <div class="info-card"><div class="label">Meeting Day</div><div class="value">{{ club.day }}</div></div>
+      <div class="info-card"><div class="label">Membership</div><div class="value">{{ club.membership }}</div></div>
+      <div class="info-card"><div class="label">Official Email</div><div class="value">{{ club.email }}</div></div>
+    </section>
+
+    <section id="login-section" class="glass" style="max-width:480px; margin:2rem auto;">
+      <h2 style="text-align:center; margin-bottom:1.5rem; background:linear-gradient(90deg,var(--cyan),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Member Access</h2>
+      <form method="POST" action="{{ url_for('login') }}">
+        <div class="form-group"><input type="email" name="email" placeholder="Email address" required></div>
+        <div class="form-group"><input type="password" name="password" placeholder="Password" required></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Log In</button>
+      </form>
+      <hr style="border-color:var(--border); margin:1.5rem 0;">
+      <p style="text-align:center; font-size:.85rem; color:#94a3b8; margin-bottom:1rem;">Approved applicant? Create your account:</p>
+      <form method="POST" action="{{ url_for('register') }}">
+        <div class="form-group"><input type="text" name="full_name" placeholder="Full name" required></div>
+        <div class="form-group"><input type="email" name="email" placeholder="Approved email address" required></div>
+        <div class="form-group"><input type="password" name="password" placeholder="Create password (min 6 chars)" required minlength="6"></div>
+        <button type="submit" class="btn btn-gold" style="width:100%;">Create Account</button>
+      </form>
+    </section>
+    {% endif %}
+
+    <!-- ================= PAGE: MEMBERSHIP ================= -->
+    {% if page == "membership" %}
+    <section class="glass" style="max-width:700px; margin:0 auto;">
+      <h1 style="text-align:center; margin-bottom:.5rem;">Become a Member</h1>
+      <p style="text-align:center; color:#cbd5e1; margin-bottom:2rem;">
+        We welcome individuals who share our values of unity, commitment, respect, and collective progress.
+        <strong style="color:var(--gold);">Membership is subject to club approval and recognition.</strong>
+      </p>
+      <h3 style="margin-bottom:1rem; color:var(--cyan);">Membership Process</h3>
+      <ol class="steps">
+        <li>Complete the online membership application.</li>
+        <li>Submit your details for administrative review.</li>
+        <li>Await approval from the club administration.</li>
+        <li>Attend a physical meeting for recognition.</li>
+        <li>Receive your membership number and access to the members' portal.</li>
+      </ol>
+      <h3 style="margin:2rem 0 1rem; color:var(--cyan);">Application Form</h3>
+      <form method="POST" action="{{ url_for('apply') }}">
+        <div class="form-group"><input type="text" name="full_name" placeholder="Full name" required></div>
+        <div class="form-group"><input type="email" name="email" placeholder="Email address" required></div>
+        <div class="form-group"><input type="tel" name="phone" placeholder="Phone number" required></div>
+        <div class="form-group"><input type="text" name="address" placeholder="Residential address" required></div>
+        <div class="form-group"><input type="text" name="occupation" placeholder="Occupation (optional)"></div>
+        <div class="form-group"><textarea name="reason" rows="4" placeholder="Why do you want to join {{ club.name }}? (optional)"></textarea></div>
+        <button type="submit" class="btn btn-gold" style="width:100%;">Submit Application</button>
+      </form>
+      <p style="text-align:center; margin-top:1.5rem; color:#94a3b8; font-size:.9rem;">Every member contributes to the strength and success of our club.</p>
+    </section>
+    {% endif %}
+
+    <!-- ================= PAGE: DASHBOARD ================= -->
+    {% if page == "dashboard" %}
+    <section class="glass">
+      <h1 style="background:linear-gradient(90deg,var(--gold),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Welcome, {{ session.full_name }}!</h1>
+      <p style="color:#cbd5e1; margin:1rem 0 2rem;">You are a valued member of the {{ club.name }} family. {{ club.slogan }}!</p>
+      <div class="grid">
+        <div class="info-card"><div class="label">Membership Number</div><div class="value" style="color:var(--gold); font-size:1.3rem;">{{ session.membership_no }}</div></div>
+        <div class="info-card"><div class="label">Role</div><div class="value" style="text-transform:capitalize;">{{ session.role }}</div></div>
+        <div class="info-card"><div class="label">Meeting Day</div><div class="value">{{ club.day }}</div></div>
+        <div class="info-card"><div class="label">Meeting Location</div><div class="value">{{ club.location }}</div></div>
+      </div>
+      <div class="info-card" style="margin-top:1.5rem;">
+        <div class="label">Need Help?</div>
+        <div class="value">Contact us at <a href="mailto:{{ club.email }}" style="color:var(--cyan);">{{ club.email }}</a></div>
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- ================= PAGE: ADMIN ================= -->
+    {% if page == "admin" %}
+    <section class="glass">
+      <h1 style="margin-bottom:1.5rem;">🛡️ Admin Panel</h1>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('apps', this)">Applications ({{ applications|length }})</button>
+        <button class="tab-btn" onclick="showTab('members', this)">Members ({{ members|length }})</button>
+      </div>
+      <div id="apps" class="tab-panel active">
+        {% if applications %}
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            {% for a in applications %}
+            <tr>
+              <td>{{ a.full_name }}</td>
+              <td>{{ a.email }}</td>
+              <td>{{ a.phone }}</td>
+              <td><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
+              <td style="display:flex; gap:.4rem; flex-wrap:wrap;">
+                {% if a.status == 'pending' %}
+                  <form method="POST" action="{{ url_for('approve', app_id=a.id) }}" style="display:inline;"><button class="btn btn-primary btn-small" type="submit">Approve</button></form>
+                  <form method="POST" action="{{ url_for('reject', app_id=a.id) }}" style="display:inline;"><button class="btn btn-danger btn-small" type="submit">Reject</button></form>
+                {% else %}<span style="color:#64748b; font-size:.85rem;">—</span>{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}<p style="color:#94a3b8;">No applications yet.</p>{% endif %}
+      </div>
+      <div id="members" class="tab-panel">
+        {% if members %}
+        <table>
+          <thead><tr><th>Member No.</th><th>Full Name</th><th>Email</th><th>Role</th></tr></thead>
+          <tbody>
+            {% for m in members %}
+            <tr>
+              <td style="color:var(--gold); font-weight:600;">{{ m.membership_no or '—' }}</td>
+              <td>{{ m.full_name }}</td>
+              <td>{{ m.email }}</td>
+              <td><span class="badge badge-registered">{{ m.role }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}<p style="color:#94a3b8;">No registered members yet.</p>{% endif %}
+      </div>
+    </section>
+    <script>
+      function showTab(id, btn) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+      }
+    </script>
+    {% endif %}
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="footer">
+      © {{ club.name }} — {{ club.slogan }}<br>
+      📧 {{ club.email }}
+    </footer>
+  </div>
+</body>
+</html>
